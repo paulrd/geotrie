@@ -16,7 +16,15 @@
         reader (GeoTiffReader. file)
         cov (.read reader nil)
         image (.getRenderedImage cov)
-        raster (.getData image)
+        ;; calling getData required 74% of my system memory and required 6G allocated the jvm max
+        ;; heap size - in any case, this is probably not required.
+
+        ;; setting the max heap size to 4G sometimes results in the application
+        ;; killing all processes on my machine; I will leave max heap size to
+        ;; the default of 2G and try to avoid putting the entire raster image in
+        ;; memory.
+
+        ;; raster (.getData image)
 
         lat 37.75497
         lon -122.44580

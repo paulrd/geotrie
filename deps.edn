@@ -23,6 +23,6 @@
          com.github.flow-storm/flow-storm-dbg {:mvn/version "4.2.0"}}
         :extra-paths ["dev"]
         :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
-                   "-Xmx4G"
+                   "-Xmx2G"
                    "--add-opens=javafx.graphics/javafx.scene.paint=ALL-UNNAMED"
                    "-Dclojure.storm.instrumentOnlyPrefixes=ca.cawala"]}}}
