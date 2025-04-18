@@ -1,7 +1,14 @@
 (ns ca.cawala.geotrie
   (:import (java.io File)
+           (java.lang.management ManagementFactory)
+           (org.locationtech.jts.geom GeometryFactory)
+           (org.geotools.referencing.operation.projection Mollweide)
+           (org.geotools.referencing CRS)
+           (org.opengis.referencing.crs CoordinateReferenceSystem)
+           (org.geotools.api.geometry Position)
            (org.geotools.gce.geotiff GeoTiffReader)
            (org.geotools.geometry Position2D)
+           (org.geotools.geometry.jts ReferencedEnvelope)
            (org.geotools.referencing.crs DefaultGeographicCRS)))
 
 (defn foo
@@ -26,12 +33,15 @@
 
         ;; raster (.getData image)
 
+        max-heap-size (-> (ManagementFactory/getMemoryMXBean) .getHeapMemoryUsage .getMax)
+
         lat 37.75497
         lon -122.44580
         wgs84 DefaultGeographicCRS/WGS84
         gg (.getGridGeometry cov)
         posWorld (Position2D. wgs84 lon lat)
         posGrid (.worldToGrid gg posWorld)]
+    (println "max heap size: " max-heap-size)
     (println "image is of type:" (type image)))
 
 ;; File tiffFile = new File("/development/workspace/USGS_13_n38w123_uncomp.tif");
@@ -43,5 +53,42 @@
 (comment
   (foo "Paul")
   (main)
+  (def file (File. "/home/paul/Downloads/ppp_2020_1km_Aggregated.tif"))
+  (def reader (GeoTiffReader. file))
+  (def cov (.read reader nil))
+  (def image (.getRenderedImage cov))
 
-  )
+  (def lat 37.75497)
+  (def lon -122.44580)
+  (def min-lon -123.0)
+  (def max-lon -122.0)
+  (def min-lat 37.0)
+  (def max-lat 38.0)
+  (def wgs84 DefaultGeographicCRS/WGS84)
+  (def gg (.getGridGeometry cov))
+  (def posWorld (Position2D. wgs84 lon lat))
+  (def posGrid (.worldToGrid gg posWorld))
+
+  (.getNumSampleDimensions cov)
+  (.getSampleDimension cov 0)
+  (type (first (.evaluate cov posWorld)))
+  (def crs (.getCoordinateReferenceSystem cov))
+  (def roi-envelope (ReferencedEnvelope. min-lon max-lon min-lat max-lat crs))
+  (def pixel-envelope (.worldToGrid gg roi-envelope))
+
+  (.getArea roi-envelope)
+
+  (def roi-geometry (-> (GeometryFactory.) (.toGeometry roi-envelope)))
+  (def transform )
+
+;; note from the api: getters and setters are such that the end points are
+  ;; inclusive - ie getHigh returns the valid maximum inclusive grid coordinates
+  (.getLow pixel-envelope)
+  (.getHigh pixel-envelope) bb
+
+  (def grid-range (.getGridRange gg))
+  (def envelope (.getEnvelope cov))
+
+  (.getSpan grid-range 0)
+  (.getSpan grid-range 1)
+  (vec (.getOptimalDataBlockSizes cov)))
