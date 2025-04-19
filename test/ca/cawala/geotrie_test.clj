@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [ca.cawala.geotrie :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 1 1))))
+(deftest area-test
+  (testing "Test population of Newfoundland"
+    (let [pop (main)]
+      (is (and (> 517678 pop) (< 517677 pop))))))
