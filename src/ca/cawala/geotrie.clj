@@ -45,12 +45,18 @@
     (println "population of Newfoundland: " pop)
     pop))
 
+(def file "global_pop_2026_CN_1km_R2025A_UA_v1.tif")
+
 (defn main
   "this region should cover the main island of newfoundland it should be around
-500,000"
+  530,000"
   []
-  (let [file "/home/paul/Downloads/ppp_2020_1km_Aggregated.tif"]
-    (sum-in-area file -59.963389 -50.976356 46.408949 52.014232)))
+  (let [path (str "/home/paul/Downloads/" file)]
+    (sum-in-area path -59.963389 -50.976356 46.408949 52.014232)))
+
+;; Data source: worldpop.org.
+;; old file: ppp_2020_1km_Aggregated.tif
 
 (comment
-  (main))
+  (main)
+  )
