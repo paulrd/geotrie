@@ -1,9 +1,9 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+ :deps {org.clojure/clojure {:mvn/version "1.12.3"}
         org.opengis/geoapi {:mvn/version "3.0.2"}
         org.geotools/gt-geometry {:mvn/version "24.7"}
-        org.geotools/gt-geotiff {:mvn/version "33.0"}
-        org.geotools/gt-epsg-hsql {:mvn/version "33.0"}}
+        org.geotools/gt-geotiff {:mvn/version "34.0"}
+        org.geotools/gt-epsg-hsql {:mvn/version "34.0"}}
  :mvn/repos {"geotools" {:url "https://repo.osgeo.org/repository/geotools-releases/"}
              "geotools1" {:url "https://maven.geo-solutions.it/"}
              "gitpack" {:url "https://jitpack.io"}}
@@ -17,13 +17,13 @@
    :main-opts ["-m" "cognitect.test-runner"]
    :exec-fn cognitect.test-runner.api/test}
   :build {:deps {io.github.clojure/tools.build
-                 {:mvn/version "0.10.8"}
+                 {:mvn/version "0.10.11"}
                  slipset/deps-deploy {:mvn/version "0.2.2"}}
           :ns-default build}
   :dev {:classpath-overrides {org.clojure/clojure nil}
         :extra-deps
-        {com.github.flow-storm/clojure {:mvn/version "1.12.0-9"}
-         com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.0"}}
+        {com.github.flow-storm/clojure {:mvn/version "1.12.3-4"}
+         com.github.flow-storm/flow-storm-dbg {:mvn/version "4.5.9"}}
         :extra-paths ["dev"]
         :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
                    ;;"-Xmx2G"

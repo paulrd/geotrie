@@ -1,13 +1,11 @@
 (ns ca.cawala.geotrie
   (:import
-   (java.io File)
    (org.geotools.coverage.grid GridCoordinates2D GridEnvelope2D GridGeometry2D)
    (org.geotools.coverage.grid.io AbstractGridFormat)
    (org.geotools.coverage.processing CoverageProcessor)
    (org.geotools.gce.geotiff GeoTiffReader)
    (org.geotools.geometry Position2D)
-   (org.geotools.geometry.jts ReferencedEnvelope)
-   (org.geotools.parameter DefaultParameterDescriptor Parameter)))
+   (org.geotools.geometry.jts ReferencedEnvelope)))
 
 (defn sum-area [region min-col min-row max-col max-row]
   (apply +
@@ -47,9 +45,10 @@
     (println "population of Newfoundland: " pop)
     pop))
 
-(defn main []
+(defn main
   "this region should cover the main island of newfoundland it should be around
 500,000"
+  []
   (let [file "/home/paul/Downloads/ppp_2020_1km_Aggregated.tif"]
     (sum-in-area file -59.963389 -50.976356 46.408949 52.014232)))
 
