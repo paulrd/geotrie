@@ -1,6 +1,6 @@
 # ca.cawala/geotrie
 
-FIXME: my new library.
+Creates heirarchical population clusters from a geotiff file.
 
 ## Usage
 
