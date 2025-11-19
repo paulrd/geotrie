@@ -1,13 +1,9 @@
 (ns ca.cawala.geotrie
-  (:require [clojure.core.reducers :as r]
-            [clojure.java.io :as io])
+  (:require
+   [clojure.core.reducers :as r])
   (:import
    (java.awt Rectangle)
-   (java.awt.image Raster WritableRaster)
-   (org.geotools.coverage.grid GridCoordinates2D GridEnvelope2D GridGeometry2D)
-   (org.geotools.coverage.grid.io AbstractGridFormat)
    (org.geotools.coverage.processing CoverageProcessor)
-   (org.geotools.gce.geotiff GeoTiffReader)
    (org.geotools.geometry Position2D)
    (org.geotools.geometry.jts ReferencedEnvelope)))
 
@@ -95,6 +91,5 @@
 ;; Bounds: -180.0, -59.999999423999995, 179.99999856000005, 84.0
 ;; [-180.0 179.99999856000005 -59.999999423999995 84.0]
   (do
-    (def file-name "global_pop_2026_CN_1km_R2025A_UA_v1.tif")
     (def meters-per-degree 111320)) ; to use to get approximate dimensions of a 'square' lat/lon
   :dbg)
