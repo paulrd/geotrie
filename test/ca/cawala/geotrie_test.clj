@@ -1,7 +1,8 @@
 (ns ca.cawala.geotrie-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [ca.cawala.geotrie :refer :all])
+            [ca.cawala.geotrie :refer :all]
+            [clojure.core.reducers :as r])
   (:import (java.awt Rectangle)
            (org.geotools.gce.geotiff GeoTiffReader)
            (org.geotools.coverage.grid GridCoordinates2D GridEnvelope2D GridGeometry2D)))
@@ -34,31 +35,30 @@
                (> (first (.evaluate cov (GridCoordinates2D. x2 y2) (make-array Float/TYPE 1)))
                   3.8898727E-14))))))
 
-(defn get-tiles
-  "Takes a coverage object and a rectangle and returns a set of tiles containing these points."
-  [cov rect]
-  (let [img (.getRenderedImage cov)
-        minX (.getMinTileX img)
-        minY (.getMinTileY img)
-        tiles (vec (for [x (range minX (+ minX (.getNumXTiles img)))
-                         y (range minY (+ minY (.getNumYTiles img)))]
-                     [x y]))
-        tileWidth (.getTileWidth img)
-        tileHeight (.getTileHeight img)]
-    (->> tiles
-         (r/filter #(not (or (<= (* (inc (first %)) tileWidth) min-col) ; tile is too far left
-                             (> (* (first %) tileWidth) max-col)        ; tile is too far right
-                             (<= (* (inc (last %)) tileHeight) min-row) ; tile is too far above
-                             (> (* (last %) tileHeight) max-row)        ; tile is too far below
-                             )))
-         (r/map #(.getTile img (first %) (last %)))
-         (r/map #(sum-tile % min-col min-row max-col max-row))
-         (r/filter #(< 0 %))
-         (r/fold +))))
-
-(deftest get-tiles
+(deftest get-tiles-test
   (testing "get tile rasters for grid range"
-    (to-grid cov min-lon max-lon min-lat max-lat)
+    (let [grid-rect (to-grid cov min-lon max-lon min-lat max-lat)
+          tile (first (get-tiles cov grid-rect))]
+      (is (= (count (get-tiles cov grid-rect)) 1))
+      (is (<= (.getMinX tile) (.getX grid-rect))
+          (<= (.getMinY tile) (.getY grid-rect)))
+      (is (= (count (get-tiles cov (Rectangle. (.getX grid-rect)
+                                               (.getY grid-rect)
+                                               (+ (.getWidth grid-rect) 512)
+                                               (+ (.getHeight grid-rect) 512))))
+             4)))))
 
-    )
-  )
+(deftest sum-tiles-test
+  (testing "sum tiles in region quickly"
+    (let [grid-rect (to-grid cov 0 10 0 10)]
+      (is (>= (time (sum-tiles cov grid-rect)) 0)))))
+
+(comment
+  (do
+    (set! *warn-on-reflection* false)
+    (println "doing:")
+    #_(def grid-rect (to-grid cov min-lon max-lon min-lat max-lat))
+    (def grid-rect (to-grid cov -180 180 -90 90))
+    (time (sum-tiles cov grid-rect))
+    "kiss me")
+  "hug me")

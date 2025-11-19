@@ -3,7 +3,7 @@
             [clojure.java.io :as io])
   (:import
    (java.awt Rectangle)
-   (java.awt.image Raster)
+   (java.awt.image Raster WritableRaster)
    (org.geotools.coverage.grid GridCoordinates2D GridEnvelope2D GridGeometry2D)
    (org.geotools.coverage.grid.io AbstractGridFormat)
    (org.geotools.coverage.processing CoverageProcessor)
@@ -11,33 +11,14 @@
    (org.geotools.geometry Position2D)
    (org.geotools.geometry.jts ReferencedEnvelope)))
 
-(defn sum-tile [raster min-col min-row max-col max-row]
+(defn sum-tile [raster region-rect]
   (let [tile-rect (.getBounds raster)
-        region-rect (Rectangle. min-col min-row (- max-col min-col) (- max-row min-row))
-        rect (.intersection tile-rect region-rect)]
-    (apply + (for [x (range (.getWidth rect))
-                   y (range (.getHeight rect))]
-               (.getSampleFloat raster (+ x (.getX rect)) (+ y (.getY rect)) 0)))))
-
-(defn sum-area [region min-col min-row max-col max-row]
-  (let [img (.getRenderedImage region)
-        minX (.getMinTileX img)
-        minY (.getMinTileY img)
-        tiles (vec (for [x (range minX (+ minX (.getNumXTiles img)))
-                         y (range minY (+ minY (.getNumYTiles img)))]
-                     [x y]))
-        tileWidth (.getTileWidth img)
-        tileHeight (.getTileHeight img)]
-    (->> tiles
-         (r/filter #(not (or (<= (* (inc (first %)) tileWidth) min-col) ; tile is too far left
-                             (> (* (first %) tileWidth) max-col)        ; tile is too far right
-                             (<= (* (inc (last %)) tileHeight) min-row) ; tile is too far above
-                             (> (* (last %) tileHeight) max-row)        ; tile is too far below
-                             )))
-         (r/map #(.getTile img (first %) (last %)))
-         (r/map #(sum-tile % min-col min-row max-col max-row))
-         (r/filter #(< 0 %))
-         (r/fold +))))
+        rect (.intersection tile-rect region-rect)
+        width (int (.getWidth rect))
+        height (int (.getHeight rect))
+        a (.getPixels raster (int (.getX rect)) (int (.getY rect)) width height
+                      (make-array Float/TYPE (* width height)))]
+    (apply + ^floats (filter #(> % 0) a))))
 
 (defn to-grid
   "Converts from lat/lon to grid coordinates."
@@ -57,6 +38,57 @@
         max-row (Math/min (.y grid-lower-left) (+ (.y grid-range) (.height grid-range) -1))]
     (Rectangle. min-col min-row (inc (- max-col min-col)) (inc (- max-row min-row)))))
 
+(defn get-tiles
+  "Takes a coverage object and a rectangle and returns a set of tiles containing these points."
+  [cov rect]
+  (let [img (.getRenderedImage cov)
+        min-x (.getMinTileX img)
+        min-y (.getMinTileY img)
+        tiles (vec (for [x (range (.getNumXTiles img))
+                         y (range (.getNumYTiles img))]
+                     [x y]))
+        min-col (.getX rect)
+        max-col (+ min-col (dec (.getWidth rect)))
+        min-row (.getY rect)
+        max-row (+ min-row (dec (.getHeight rect)))
+        tileWidth (.getTileWidth img)
+        tileHeight (.getTileHeight img)]
+    (->> tiles
+         (r/map (fn [[x y]] [(+ min-x x) (+ min-y y)]))
+         (r/filter #(not (or (<= (* (inc (first %)) tileWidth) min-col) ; tile is too far left
+                             (> (* (first %) tileWidth) max-col)        ; tile is too far right
+                             (<= (* (inc (last %)) tileHeight) min-row) ; tile is too far above
+                             (> (* (last %) tileHeight) max-row)        ; tile is too far below
+                             )))
+         (r/map #(.getTile img (first %) (last %)))
+         (r/foldcat))))
+
+(defn sum-tiles
+  "Takes a coverage object and a rectangle and returns sum of tile values within the rectangle."
+  [cov rect]
+  (let [img (.getRenderedImage cov)
+        min-x (.getMinTileX img)
+        min-y (.getMinTileY img)
+        tiles (vec (for [x (range (.getNumXTiles img))
+                         y (range (.getNumYTiles img))]
+                     [x y]))
+        min-col (.getX rect)
+        max-col (+ min-col (dec (.getWidth rect)))
+        min-row (.getY rect)
+        max-row (+ min-row (dec (.getHeight rect)))
+        tileWidth (.getTileWidth img)
+        tileHeight (.getTileHeight img)]
+    (->> tiles
+         (r/map (fn [[x y]] [(+ min-x x) (+ min-y y)]))
+         (r/filter #(not (or (<= (* (inc (first %)) tileWidth) min-col) ; tile is too far left
+                             (> (* (first %) tileWidth) max-col)        ; tile is too far right
+                             (<= (* (inc (last %)) tileHeight) min-row) ; tile is too far above
+                             (> (* (last %) tileHeight) max-row)        ; tile is too far below
+                             )))
+         (r/map #(.getTile img (first %) (last %)))
+         (r/map #(sum-tile % rect))
+         (r/fold +))))
+
 (comment
 ;; Data source: worldpop.org.
 ;; old file: ppp_2020_1km_Aggregated.tif
@@ -65,8 +97,4 @@
   (do
     (def file-name "global_pop_2026_CN_1km_R2025A_UA_v1.tif")
     (def meters-per-degree 111320)) ; to use to get approximate dimensions of a 'square' lat/lon
-  (io/resource file-name)
-  (* 85 34)
-  (* 85 512)
-  (* 34 512)
   :dbg)
