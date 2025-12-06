@@ -1,9 +1,13 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.12.3"}
+ :deps {com.nc/JXMapViewer2 {:mvn/version "2.9.0"}
+        org.clojure/clojure {:mvn/version "1.12.3"}
         org.opengis/geoapi {:mvn/version "3.0.2"}
+        andersmurphy/sqlite4clj
+        {:git/url "https://github.com/andersmurphy/sqlite4clj"
+         :git/sha "c416d1175650eb2baa30007fa69084e2b0af88f4" #_"e546f3307256f2f9e922c4710d574560f6b4e2e5"}
         org.geotools/gt-geometry {:mvn/version "24.7"}
-        org.geotools/gt-geotiff {:mvn/version "34.0"}
-        org.geotools/gt-epsg-hsql {:mvn/version "34.0"}}
+        org.geotools/gt-geotiff {:mvn/version "34.1"}
+        org.geotools/gt-epsg-hsql {:mvn/version "34.1"}}
  :mvn/repos {"geotools" {:url "https://repo.osgeo.org/repository/geotools-releases/"}
              "geotools1" {:url "https://maven.geo-solutions.it/"}
              "gitpack" {:url "https://jitpack.io"}}
@@ -11,7 +15,7 @@
  :aliases
  {:test
   {:extra-paths ["test"]
-   :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
+   :extra-deps {org.clojure/test.check {:mvn/version "1.1.2"}
                 io.github.cognitect-labs/test-runner
                 {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
    :main-opts ["-m" "cognitect.test-runner"]
