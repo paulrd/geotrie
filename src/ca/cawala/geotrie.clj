@@ -60,7 +60,9 @@
          (r/foldcat))))
 
 (defn sum-tiles
-  "Takes a coverage object and a rectangle and returns sum of tile values within the rectangle."
+  "Takes a coverage object and a rectangle and returns sum of tile values within the rectangle.
+  Note that pixels on boundaries will get counted twice when summing separate
+  regions that share a border."
   [cov rect]
   (let [img (.getRenderedImage cov)
         min-x (.getMinTileX img)
@@ -84,6 +86,28 @@
          (r/map #(.getTile img (first %) (last %)))
          (r/map #(sum-tile % rect))
          (r/fold +))))
+
+(defn determine-cut-axis [min-lon, max-lon, min-lat, max-lat]
+  (let [x (- max-lon min-lon)
+        y (- max-lat min-lat)
+        mid-lat (+ min-lat (/ y 2))
+        reduction-factor-at-mid-lat (Math/cos (/ (* Math/PI mid-lat) 180))]
+    (if (> (* reduction-factor-at-mid-lat x) y) :vertical :horizontal)))
+
+(comment
+  (def x (- 180 -180))
+  (def y (- 90 -90))
+  (def min-lat -90)
+  (def mid-lat (+ min-lat (/ y 2)))
+  (def reduction (Math/cos (/ (* Math/PI mid-lat) 180)))
+  (if (> (* reduction x) y) :vertical :horizontal)
+  "hi")
+
+(defn make-eight-regions
+  ""
+  [min-lon, max-lon, min-lat, max-lat]
+
+  )
 
 (comment
 ;; Data source: worldpop.org.
