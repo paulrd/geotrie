@@ -24,6 +24,8 @@
 *.jar
 *.swp
 *~
+*.db*
+*.log
 /checkouts
 /classes
 /target
