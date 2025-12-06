@@ -1,0 +1,4 @@
+* GeoTrie
+** TODO Enable foreign key enforcement
+Sqlite database needs to use the PRAGMA foreign keys statement to enforce
+foreign key constraints.
