@@ -1,4 +1,10 @@
 * GeoTrie
 ** TODO Enable foreign key enforcement
-Sqlite database needs to use the PRAGMA foreign keys statement to enforce
-foreign key constraints.
+  Sqlite database needs to use the PRAGMA foreign keys statement to enforce
+  foreign key constraints.
+** How to make Octal Trei
+*** End condition
+   A region can be subdivided regardless of population value. The region
+   'to-grid' will give a rectangle of pixels. If the region has only one pixel
+   along the dimension that will be cut, then we must stop. This may produce
+   leaf nodes that have fewer than 8 regions.
