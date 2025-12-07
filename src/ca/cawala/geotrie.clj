@@ -18,7 +18,7 @@
 
 (defn to-grid
   "Converts from lat/lon to grid coordinates."
-  [cov min-lon max-lon min-lat max-lat]
+  [cov {:keys [min-lon max-lon min-lat max-lat]}]
   (let [crs (.getCoordinateReferenceSystem cov)
         processor (CoverageProcessor/getInstance nil)
         param (.getParameters (.getOperation processor "CoverageCrop"))
@@ -87,18 +87,42 @@
          (r/map #(sum-tile % rect))
          (r/fold +))))
 
-(defn determine-cut-axis [min-lon, max-lon, min-lat, max-lat]
+(defn determine-cut-axis
+  "returns :vertical if the real-word dimension is longer in the north-south
+  direction. Else it returns :horizontal"
+  [{:keys [min-lon max-lon min-lat max-lat]}]
   (let [x (- max-lon min-lon)
         y (- max-lat min-lat)
-        mid-lat (+ min-lat (/ y 2))
+        mid-lat (/ (+ min-lat max-lat) 2)
         reduction-factor-at-mid-lat (Math/cos (/ (* Math/PI mid-lat) 180))]
     (if (> (* reduction-factor-at-mid-lat x) y) :vertical :horizontal)))
+
+(defn cannot-be-divided [grid cut-axis]
+  (case cut-axis
+    :vertical (= 1 (.getHeight grid))
+    :horizontal (= 1 (.getWidth grid))))
+
+(defn make-eight-regions
+  "cut this region into 8, may return fewer regions if a region cannot be further
+  subdivided because a region has too small of population"
+  [coverage parent-region]
+  (let [{:keys [min-lon max-lon min-lat max-lat]} parent-region]
+    #_(loop [cut-axis (determine-cut-axis parent-region)
+           grid (to-grid coverage parent-region)
+           regions []
+           ]
+      (if (cannot-be-divided grid cut-axis)
+        regions
+        (recur [cut-axis (determine-cut-axis )])
+        )
+      )))
 
 (comment
   (def x (- 180 -180))
   (def y (- 90 -90))
   (def min-lat -90)
-  (def mid-lat (+ min-lat (/ y 2)))
+  (def max-lat 90)
+  (def mid-lat (/ (+ min-lat max-lat) 2))
   (def reduction (Math/cos (/ (* Math/PI mid-lat) 180)))
   (if (> (* reduction x) y) :vertical :horizontal)
   "hi")
