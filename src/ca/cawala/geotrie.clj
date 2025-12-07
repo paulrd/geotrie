@@ -95,43 +95,44 @@
         y (- max-lat min-lat)
         mid-lat (/ (+ min-lat max-lat) 2)
         reduction-factor-at-mid-lat (Math/cos (/ (* Math/PI mid-lat) 180))]
-    (if (> (* reduction-factor-at-mid-lat x) y) :vertical :horizontal)))
+    (if (> (* reduction-factor-at-mid-lat x) y) :horizontal :vertical)))
 
 (defn cannot-be-divided [grid cut-axis]
   (case cut-axis
     :vertical (= 1 (.getHeight grid))
     :horizontal (= 1 (.getWidth grid))))
 
+(defn split-region [coverage region cut-axis]
+  (case cut-axis
+    :vertical
+    (let [mid-lat (/ (+ (:min-lat region) (:max-lat region)) 2)
+          region1 (assoc region :max-lat mid-lat)
+          region2 (assoc region :min-lat mid-lat)]
+      [(assoc region1 :population (sum-tiles coverage (to-grid coverage region1))
+              :binary-path (str (:binary-path region) "s"))
+       (assoc region2 :population (sum-tiles coverage (to-grid coverage region2))
+              :binary-path (str (:binary-path region) "n"))])
+    :horizontal
+    (let [mid-lon (/ (+ (:min-lon region) (:max-lon region)) 2)
+          region1 (assoc region :max-lon mid-lon)
+          region2 (assoc region :min-lon mid-lon)]
+      [(assoc region1 :population (sum-tiles coverage (to-grid coverage region1))
+              :binary-path (str (:binary-path region) "w"))
+       (assoc region2 :population (sum-tiles coverage (to-grid coverage region2))
+              :binary-path (str (:binary-path region) "e"))])))
+
 (defn make-eight-regions
   "cut this region into 8, may return fewer regions if a region cannot be further
   subdivided because a region has too small of population"
-  [coverage parent-region]
-  (let [{:keys [min-lon max-lon min-lat max-lat]} parent-region]
-    #_(loop [cut-axis (determine-cut-axis parent-region)
-           grid (to-grid coverage parent-region)
-           regions []
-           ]
-      (if (cannot-be-divided grid cut-axis)
-        regions
-        (recur [cut-axis (determine-cut-axis )])
-        )
-      )))
-
-(comment
-  (def x (- 180 -180))
-  (def y (- 90 -90))
-  (def min-lat -90)
-  (def max-lat 90)
-  (def mid-lat (/ (+ min-lat max-lat) 2))
-  (def reduction (Math/cos (/ (* Math/PI mid-lat) 180)))
-  (if (> (* reduction x) y) :vertical :horizontal)
-  "hi")
-
-(defn make-eight-regions
-  ""
-  [min-lon, max-lon, min-lat, max-lat]
-
-  )
+  [coverage regions]
+  (let [sorted (sort-by :population regions)
+        but-last (drop-last sorted)
+        cut-axis (determine-cut-axis (last sorted))
+        grid (to-grid coverage (last sorted))]
+    (if (or (>= (count regions) 8) (cannot-be-divided grid cut-axis))
+      regions
+      (recur coverage
+             (concat but-last (split-region coverage (last sorted) cut-axis))))))
 
 (comment
 ;; Data source: worldpop.org.
@@ -139,5 +140,6 @@
 ;; Bounds: -180.0, -59.999999423999995, 179.99999856000005, 84.0
 ;; [-180.0 179.99999856000005 -59.999999423999995 84.0]
   (do
+    (sort-by :population [{:population 6} {:population 5}])
     (def meters-per-degree 111320)) ; to use to get approximate dimensions of a 'square' lat/lon
   :dbg)

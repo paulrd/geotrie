@@ -62,14 +62,13 @@
 
 (comment
   (do
-    (set! *warn-on-reflection* false)
     #_(def grid-rect (to-grid cov min-lon max-lon min-lat max-lat))
     (def grid-rect (to-grid cov world))
     (def grid-rect1 (to-grid cov -180 0 -90 90)) ;; 25 seconds; 1.403591628149394E9
     (def grid-rect2 (to-grid cov 0 179.9999986 -90 90)) ;; 26 seconds 6.8629121901124525E9
     (def grid-rect3 (to-grid cov 0 0.000000001 -90 90))
     (sum-tiles cov grid-rect3) ;; about 42 seconds, 8.266066592562982E9
-    (- 8.266066592562982E9 6.8629121901124525E9 1.403591628149394E9)
-
+    (make-eight-regions cov [(assoc world :population 8.266e9 :binary-path "")])
+    (determine-cut-axis world)
     "kiss me")
   "hug me")
