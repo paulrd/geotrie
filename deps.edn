@@ -1,6 +1,7 @@
 {:paths ["src" "resources"]
  :deps {com.nc/JXMapViewer2 {:mvn/version "2.9.0"}
         org.clojure/clojure {:mvn/version "1.12.3"}
+        com.github.seancorfield/honeysql {:mvn/version "2.7.1364"}
         org.opengis/geoapi {:mvn/version "3.0.2"}
         andersmurphy/sqlite4clj
         {:git/url "https://github.com/andersmurphy/sqlite4clj"

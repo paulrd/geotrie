@@ -1,5 +1,6 @@
 (ns ca.cawala.sql
-  (:require [sqlite4clj.core :as d]))
+  (:require [sqlite4clj.core :as d]
+            [honey.sql :as s]))
 
 (defonce db (d/init-db! "trie.db"))
 
@@ -8,21 +9,14 @@
        ["create virtual table if not exists region using rtree(id, min_x, max_x,
        min_y, max_y, +population, +binary_path)"]))
 
-(defn insert-region [min-x max-x min-y max-y population path]
-  (d/q (:writer db)
-       [(str "INSERT INTO region (min_x, max_x, min_y, max_y, population, "
-             "binary_path) values (?, ?, ?, ?, ?, ?)")
-        min-x max-x min-y max-y population path]))
+(defn insert-regions [regions]
+  (d/q (:writer db) (s/format {:insert-into [:region] :values regions})))
 
 (comment
-  (create-region-table)
-  (insert-region -180 180 -90 90 88 "nsew")
-
-  (d/q (:reader db)
-       ["select * from region"])
-
-  (type 8)
-  (Math/cos (/ (* Math/PI 84) 90 2))
+  (s/format {:select [:*] :from [:region] :where [:= :id 1]})
+  (s/format '{select [*] from [region] where [= id 1]})
+  (insert-regions [{:min_x -180 :max_x 180 :min_y -90 :max_y 90
+                    :population 44 :binary_path "abc"}])
   ;; Encode splits as nsew - north, south, east or west. Each represents a split
   ;; in the region either horizontally or vertically in half, then choosing one
   ;; of these regions. We will split the region with the largest population in
