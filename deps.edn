@@ -1,11 +1,14 @@
 {:paths ["src" "resources"]
  :deps {com.nc/JXMapViewer2 {:mvn/version "2.9.0"}
+        camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
         org.clojure/clojure {:mvn/version "1.12.3"}
         com.github.seancorfield/honeysql {:mvn/version "2.7.1364"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.1070"}
+        org.xerial/sqlite-jdbc {:mvn/version "3.47.1.0"}
         org.opengis/geoapi {:mvn/version "3.0.2"}
         andersmurphy/sqlite4clj
         {:git/url "https://github.com/andersmurphy/sqlite4clj"
-         :git/sha "c416d1175650eb2baa30007fa69084e2b0af88f4" #_"e546f3307256f2f9e922c4710d574560f6b4e2e5"}
+         :git/sha "dfa10adf7d5b33e78274d8611df95f45bd11d538"}
         org.geotools/gt-geometry {:mvn/version "24.7"}
         org.geotools/gt-geotiff {:mvn/version "34.1"}
         org.geotools/gt-epsg-hsql {:mvn/version "34.1"}}

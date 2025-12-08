@@ -2,6 +2,7 @@
   (:require
    [ca.cawala.geotrie :refer :all]
    [clojure.java.io :as io]
+   [clojure.zip :as zip]
    [clojure.test :refer :all])
   (:import
    (java.awt Rectangle)
@@ -62,13 +63,29 @@
 
 (comment
   (do
-    #_(def grid-rect (to-grid cov min-lon max-lon min-lat max-lat))
     (def grid-rect (to-grid cov world))
     (def grid-rect1 (to-grid cov -180 0 -90 90)) ;; 25 seconds; 1.403591628149394E9
     (def grid-rect2 (to-grid cov 0 179.9999986 -90 90)) ;; 26 seconds 6.8629121901124525E9
     (def grid-rect3 (to-grid cov 0 0.000000001 -90 90))
     (sum-tiles cov grid-rect3) ;; about 42 seconds, 8.266066592562982E9
     (make-eight-regions cov [(assoc world :population 8.266e9 :binary-path "")])
+    (def america {:min-lon -180 :max-lon 0 :min-lat -90 :max-lat 90
+                  :population 1.403e9 :binary-path "w" :materialized-path "h"})
+    (def india {:min-lon 45 :max-lon 90 :min-lat 0 :max-lat 45
+                :population 2.123e9 :binary-path "enwse" :materialized-path "c"})
+    (def root (make-eight-regions cov [india]))
+    (def z (zip/zipper #(and (seqable? %) (= (count %) 8))
+                       seq nil root))
+    (def z (zip/zipper #(and (seqable? %) (= (count %) 8))
+                       (fn [node] (map #(make-eight-regions cov [%]) node))
+                       nil root))
+    (-> z zip/down zip/node first :materialized-path)
+    (-> z zip/node first :materialized-path)
+
+    (make-eight-regions cov (seq [india]))
+    (make-all-regions cov america)
+    (make-all-regions cov india)
     (determine-cut-axis world)
+    (sort-by :binary-path *2)
     "kiss me")
   "hug me")

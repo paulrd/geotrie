@@ -1,5 +1,7 @@
 (ns ca.cawala.geotrie
   (:require
+   [ca.cawala.sql :as s]
+   [clojure.zip :as zip]
    [clojure.core.reducers :as r])
   (:import
    (java.awt Rectangle)
@@ -93,7 +95,7 @@
   [{:keys [min-lon max-lon min-lat max-lat]}]
   (let [x (- max-lon min-lon)
         y (- max-lat min-lat)
-        mid-lat (/ (+ min-lat max-lat) 2)
+        mid-lat (/ (+ min-lat max-lat) 2.0)
         reduction-factor-at-mid-lat (Math/cos (/ (* Math/PI mid-lat) 180))]
     (if (> (* reduction-factor-at-mid-lat x) y) :horizontal :vertical)))
 
@@ -105,7 +107,7 @@
 (defn split-region [coverage region cut-axis]
   (case cut-axis
     :vertical
-    (let [mid-lat (/ (+ (:min-lat region) (:max-lat region)) 2)
+    (let [mid-lat (/ (+ (:min-lat region) (:max-lat region)) 2.0)
           region1 (assoc region :max-lat mid-lat)
           region2 (assoc region :min-lat mid-lat)]
       [(assoc region1 :population (sum-tiles coverage (to-grid coverage region1))
@@ -113,7 +115,7 @@
        (assoc region2 :population (sum-tiles coverage (to-grid coverage region2))
               :binary-path (str (:binary-path region) "n"))])
     :horizontal
-    (let [mid-lon (/ (+ (:min-lon region) (:max-lon region)) 2)
+    (let [mid-lon (/ (+ (:min-lon region) (:max-lon region)) 2.0)
           region1 (assoc region :max-lon mid-lon)
           region2 (assoc region :min-lon mid-lon)]
       [(assoc region1 :population (sum-tiles coverage (to-grid coverage region1))
@@ -130,14 +132,23 @@
         cut-axis (determine-cut-axis (last sorted))
         grid (to-grid coverage (last sorted))]
     (if (or (>= (count regions) 8) (cannot-be-divided grid cut-axis))
-      regions
+      (map #(assoc %1 :materialized-path (str (:materialized-path %1) %2))
+           (sort-by :binary-path regions) "abcdefgh")
       (recur coverage
              (concat but-last (split-region coverage (last sorted) cut-axis))))))
 
+(defn make-all-regions
+  "Creates an octal trie for entire region. Stops when we can't split any more pixels."
+  [coverage region]
+  #_(let [z (zip/zipper map? #(make-eight-regions coverage [%]) nil region)])
+
+  #_(let [r (make-eight-regions coverage [region])]
+    (s/insert-regions! r)))
+
 (comment
-;; Data source: worldpop.org.
-;; old file: ppp_2020_1km_Aggregated.tif
-;; Bounds: -180.0, -59.999999423999995, 179.99999856000005, 84.0
+;; Data source​ worldpop.org.
+;; old file​ ppp_2020_1km_Aggregated.tif
+;; Bounds​ -180.0, -59.999999423999995, 179.99999856000005, 84.0
 ;; [-180.0 179.99999856000005 -59.999999423999995 84.0]
   (do
     (sort-by :population [{:population 6} {:population 5}])
