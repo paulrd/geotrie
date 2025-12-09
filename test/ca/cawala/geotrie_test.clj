@@ -74,14 +74,21 @@
     (def india {:min-lon 45 :max-lon 90 :min-lat 0 :max-lat 45
                 :population 2.123e9 :binary-path "enwse" :materialized-path "c"})
     (def root (make-eight-regions cov [india]))
-    (def z (zip/zipper #(and (seqable? %) (= (count %) 8))
-                       seq nil root))
-    (def z (zip/zipper #(and (seqable? %) (= (count %) 8))
-                       (fn [node] (map #(make-eight-regions cov [%]) node))
-                       nil root))
-    (-> z zip/down zip/node first :materialized-path)
-    (-> z zip/node first :materialized-path)
-
+    (-> root (#(trie-zipper cov %)) iter-zip (nth 30) zip/node first :materialized-path)
+    (->> root (trie-zipper cov) iter-zip (map zip/node) (map count) (take 9) (apply min))
+    (->> root (trie-zipper cov) iter-zip (map zip/node) (#(nth % 8)))
+    (time (->> root (trie-zipper cov) iter-zip (map zip/node)
+               (map (fn [node] (map #(:materialized-path %) node))) (#(nth % 100))))
+    (def result
+      (let [layers (->> root (trie-zipper cov) loc-layers)]
+        (for [layer (take 3 layers)
+              node (map zip/node layer)
+              path (map #(:materialized-path %) node)]
+          path)))
+    (time (dorun result))
+;; 25 seconds 3 layers 540 nodes
+    ;; 48 seconds 4 layers 4680 nodes
+    ;; 139 seconds 5 layers 37445 nodes
     (make-eight-regions cov (seq [india]))
     (make-all-regions cov america)
     (make-all-regions cov india)
@@ -89,3 +96,4 @@
     (sort-by :binary-path *2)
     "kiss me")
   "hug me")
+-
