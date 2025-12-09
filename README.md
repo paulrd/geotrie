@@ -1,6 +1,7 @@
 # ca.cawala/geotrie
 
-Creates heirarchical population clusters from a geotiff file. This is meant to
+Creates heirarchical population clusters from a geotiff file by populating an SQLITE database. 
+This is meant to
 be used from the clojure repl. It has a hard-coded tif file name which expects
 to be located in the resources folder. It has a hard-coded number of threads
 (8). See the comment in the sql.clj file to make sure the region table is
