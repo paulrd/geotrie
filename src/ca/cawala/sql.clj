@@ -1,6 +1,7 @@
 (ns ca.cawala.sql
   (:require [sqlite4clj.core :as d]
             [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]
             [honey.sql :as s]))
 
 #_(defonce db (d/init-db! "trie.db"))
@@ -16,17 +17,24 @@
   (jdbc/execute! ds (s/format {:insert-into [:region] :values regions}))
   #_(d/q (:writer db) (s/format {:insert-into [:region] :values regions})))
 
-(comment
-  (def db {:dbtype "sqlite" :dbname "trie.db"})
+(defn get-layer [layer-number]
+  (jdbc/execute! ds (s/format {:select [:*] :from [:region]
+                               :where [:= [:length :materialized-path] layer-number]})
+                 {:builder-fn rs/as-unqualified-kebab-maps}))
 
-  (jdbc/execute! ds ["create table address (id, name, email)"])
+(comment
+  (jdbc/execute! ds (s/format {:select [:*] :from [:region]
+                               :where [:= [:length :materialized-path] 7]})
+                 {:builder-fn rs/as-unqualified-kebab-maps})
+
   (jdbc/execute! ds (s/format {:insert-into [:region] :values mr}))
+  (get-layer 1)
 
   (create-region-table)
   (s/format {:select [:*] :from [:region] :where [:= :id 1]})
   (s/format '{select [*] from [region] where [= id 1]})
   (insert-regions! [{:min_x -180 :max_x 180 :min_y -90 :max_y 90
-                    :population 44 :binary_path "abc"}])
+                     :population 44 :binary_path "abc"}])
   ;; Encode splits as nsew - north, south, east or west. Each represents a split
   ;; in the region either horizontally or vertically in half, then choosing one
   ;; of these regions. We will split the region with the largest population in
