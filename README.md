@@ -4,7 +4,7 @@ Creates heirarchical population clusters from a geotiff file. This is meant to
 be used from the clojure repl. It has a hard-coded tif file name which expects
 to be located in the resources folder. It has a hard-coded number of threads
 (8). See the comment in the sql.clj file to make sure the region table is
-created. Then run (-main <number of layer>). Start with 1. Then run with 2, etc.
+created. Then run (-main `layer-number`). Start with 1. Then run with 2, etc.
 It is computationally intensive. I ran it with 7 layers with the following run
 times for each: 
 
@@ -18,7 +18,7 @@ times for each:
 
 ## Usage
 - create table using statement found in sql.clj.
-- call (-main <layer-number>)
+- call (-main `layer-number`)
 
 Invoke a library API function from the command-line:
 
