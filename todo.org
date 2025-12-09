@@ -1,7 +1,4 @@
 * GeoTrie
-** TODO Enable foreign key enforcement
-  Sqlite database needs to use the PRAGMA foreign keys statement to enforce
-  foreign key constraints.
 ** How to make Octal Trei
 *** End condition
    A region can be subdivided regardless of population value. The region
