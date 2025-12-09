@@ -20,19 +20,10 @@
                                :where [:= [:length :materialized-path] layer-number]})
                  {:builder-fn rs/as-unqualified-kebab-maps}))
 
+
 (comment
-  (jdbc/execute! ds (s/format {:select [:*] :from [:region]
-                               :where [:= [:length :materialized-path] 7]})
-                 {:builder-fn rs/as-unqualified-kebab-maps})
-
-  (jdbc/execute! ds (s/format {:insert-into [:region] :values mr}))
-  (get-layer 1)
-
   (create-region-table)
-  (s/format {:select [:*] :from [:region] :where [:= :id 1]})
-  (s/format '{select [*] from [region] where [= id 1]})
-  (insert-regions! [{:min_x -180 :max_x 180 :min_y -90 :max_y 90
-                     :population 44 :binary_path "abc"}])
+
   ;; Encode splits as nsew - north, south, east or west. Each represents a split
   ;; in the region either horizontally or vertically in half, then choosing one
   ;; of these regions. We will split the region with the largest population in
@@ -45,10 +36,8 @@
 
   ;; Regions may not be split evenly, so 3 to 7 characters will be needed to
   ;; describe each of the 8 regions if we want to create an octal trie. We can
-  ;; label each of the regions lexically such that shorter strings come first
-  ;; and characters have this ordering: w < e < s < n. Then we give the label
-  ;; 'a' to the first region all the way to the 'h' for the eighth region. This
-  ;; would mean larger regions would come first in the order followed by those
-  ;; that have lower longitude then lower latitude.
+  ;; label each of the regions lexically, then we give the label 'a' to the
+  ;; first region all the way to the 'h' for the eighth region. This means that
+  ;; eastern regions come before northern before southern before western.
 
   (+ 1 2))
