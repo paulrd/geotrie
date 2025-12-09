@@ -1,10 +1,24 @@
 # ca.cawala/geotrie
 
-Creates heirarchical population clusters from a geotiff file.
+Creates heirarchical population clusters from a geotiff file. This is meant to
+be used from the clojure repl. It has a hard-coded tif file name which expects
+to be located in the resources folder. It has a hard-coded number of threads
+(8). See the comment in the sql.clj file to make sure the region table is
+created. Then run (-main <number of layer>). Start with 1. Then run with 2, etc.
+It is computationally intensive. I ran it with 7 layers with the following run
+times for each: 
+
+- layer 1: 176 seconds, 8 regions
+- layer 2: 126 seconds, 64 regions, 72 total
+- layer 3 100 seconds, 480 regions, 552 total
+- layer 4 90 seconds, 3616 regions, 4168 total
+- layer 5 99 seconds, 26592 regions, 30760 total
+- layer 6 389 seconds, 195803 regions, 226563 total
+- layer 7 40 minutes, 1451807 regions, 1678370 total
 
 ## Usage
-
-FIXME: write usage documentation!
+- create table using statement found in sql.clj.
+- call (-main <layer-number>)
 
 Invoke a library API function from the command-line:
 

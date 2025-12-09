@@ -203,8 +203,6 @@
   ;; layer 7 19 minutes, 372931 regions, 521724 total
   ;; layer 7 7 minutes, 314272 regions, 456139 total
   ;; layer 7 40 minutes, 1451807 regions, 1678370 total
-
-  ;; layer 8 7 minutes, 315273 regions, 458394 total
   (time (-main 7))
 
 ;; Data source​ worldpop.org.
