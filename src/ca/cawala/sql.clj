@@ -1,10 +1,9 @@
 (ns ca.cawala.sql
-  (:require [sqlite4clj.core :as d]
-            [next.jdbc :as jdbc]
-            [next.jdbc.result-set :as rs]
-            [honey.sql :as s]))
+  (:require
+   [honey.sql :as s]
+   [next.jdbc :as jdbc]
+   [next.jdbc.result-set :as rs]))
 
-#_(defonce db (d/init-db! "trie.db"))
 (def db {:dbtype "sqlite" :dbname "trie.db"})
 (def ds (jdbc/get-datasource db))
 
@@ -14,8 +13,7 @@
        +materialized_path)"]))
 
 (defn insert-regions! [regions]
-  (jdbc/execute! ds (s/format {:insert-into [:region] :values regions}))
-  #_(d/q (:writer db) (s/format {:insert-into [:region] :values regions})))
+  (jdbc/execute! ds (s/format {:insert-into [:region] :values regions})))
 
 (defn get-layer [layer-number]
   (jdbc/execute! ds (s/format {:select [:*] :from [:region]

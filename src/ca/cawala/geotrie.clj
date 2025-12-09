@@ -1,15 +1,14 @@
 (ns ca.cawala.geotrie
   (:require
    [ca.cawala.sql :as s]
-   [clojure.zip :as zip]
-   [com.climate.claypoole :as cp]
+   [clojure.core.reducers :as r]
    [clojure.java.io :as io]
-   [clojure.core.reducers :as r])
+   [com.climate.claypoole :as cp])
   (:import
    (java.awt Rectangle)
    (org.geotools.coverage.processing CoverageProcessor)
-   (org.geotools.geometry Position2D)
    (org.geotools.gce.geotiff GeoTiffReader)
+   (org.geotools.geometry Position2D)
    (org.geotools.geometry.jts ReferencedEnvelope)))
 
 (defn sum-tile [raster region-rect]

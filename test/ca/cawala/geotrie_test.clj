@@ -2,7 +2,6 @@
   (:require
    [ca.cawala.geotrie :refer :all]
    [clojure.java.io :as io]
-   [clojure.zip :as zip]
    [clojure.test :refer :all])
   (:import
    (java.awt Rectangle)
