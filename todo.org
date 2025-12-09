@@ -8,3 +8,37 @@
    'to-grid' will give a rectangle of pixels. If the region has only one pixel
    along the dimension that will be cut, then we must stop. This may produce
    leaf nodes that have fewer than 8 regions.
+** Too Much Data
+*** Process by Layer
+   The database might be up to a billion rows. It might be best to process the
+   tree structure by inserting region data by layer. I layer would be a
+   breadth-first traversal / creation of the dataA. Each successive layer would
+   have a materialized path length one greater than the previous layer.
+*** Test Table layout
+   An R-TREE virtual table would work well for range queries on the coordinates
+   of the bounding boxes, however it cannot create indexes on its auxiliary
+   columns. Searching for materialized paths without an index could take a long
+   time. It may be best to create a second table that is has a foreign id on the
+   region rtree table. This path table would have a TEXT PRIMARY KEY on the
+   materialized_path column.
+
+   Though materialized_path is a foreign key, I cannot put any constraints on
+   the rtree index.
+
+   I don't like this solution because the speed up is only 2x in a single table
+   but then I have to compute joins which will be expensive. The data is
+   one-to-one so best to have a single table. I don't think there is any way to
+   use the existing index.
+*** More Compute
+   I have a vps with half the cores with have the clock speed each, so it makes
+   more sense to run on my desktop or laptop overnight and store check-points in
+   the sql tables.
+*** Skip SQL
+   Another option is to skip sql and compute on the fly from the geotiff file.
+   Geotiff computation can be quite slow however. Materialized view creation and
+   storage of precomputed values would be much quicker. What could be don is
+   precompute values for the large regions and then compute smaller regions on
+   the fly.
+*** Use Case
+   Could be deployed to kaggle or via Datasette. An aid / suggestion for finding
+   nodes to connect to.
