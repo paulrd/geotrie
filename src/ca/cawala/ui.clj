@@ -1,11 +1,11 @@
 (ns ca.cawala.ui
-  (:require [org.corfield.logging4j2 :as logger]
-            [clojure.java.io :as io]
-            [seesaw.core :as s])
-  (:import [org.jxmapviewer.examples Examples]
-           [org.jxmapviewer.examples.controller MainController]
-           [org.jxmapviewer Globals]
-           ))
+  (:require
+   [clojure.java.io :as io]
+   [org.corfield.logging4j2 :as logger]
+   [seesaw.core :as s])
+  (:import
+   [org.jxmapviewer Globals]
+   [org.jxmapviewer.examples.controller MainController]))
 
 (defn -main [& _]
   (s/native!)
