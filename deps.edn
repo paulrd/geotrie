@@ -4,6 +4,7 @@
         com.nc/JXMapViewer2 {:mvn/version "2.9.0"}
         org.clj-commons/claypoole {:mvn/version "1.2.2"}
         org.clojure/clojure {:mvn/version "1.12.3"}
+        com.github.seancorfield/logging4j2 {:mvn/version "1.0.5"}
         org.geotools/gt-epsg-hsql {:mvn/version "34.1"}
         org.geotools/gt-geometry {:mvn/version "24.7"}
         org.geotools/gt-geotiff {:mvn/version "34.1"}
