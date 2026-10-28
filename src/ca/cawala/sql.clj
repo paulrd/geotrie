@@ -2,27 +2,35 @@
   (:require
    [honey.sql :as s]
    [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]))
+   [next.jdbc.connection :as connection]
+   [next.jdbc.result-set :as rs])
+  (:import
+   [com.zaxxer.hikari HikariDataSource]))
 
 (def db {:dbtype "sqlite" :dbname "trie.db"})
-(def ds (jdbc/get-datasource db))
+(def ds (connection/->pool HikariDataSource db))
 
-(defn create-region-table []
-  (jdbc/execute! ds ["create virtual table if not exists region using
-       rtree(id, min_lon, max_lon, min_lat, max_lat, +population, +binary_path,
-       +materialized_path)"]))
+(defn create-tables []
+  (jdbc/execute! ds ["create virtual table if not exists geo_index using
+       rtree(id, min_lon, max_lon, min_lat, max_lat)"])
+  (jdbc/execute! ds ["create table if not exists region(id integer primary key,
+population, binary_path, materialized_path)"])
+  (jdbc/execute! ds ["create index if not exists idx_region_path on region(materialized_path)"]))
 
 (defn insert-regions! [regions]
   (jdbc/execute! ds (s/format {:insert-into [:region] :values regions})))
 
 (defn get-layer [layer-number]
+  (jdbc/execute! ds (s/format {:select [:r.* :g.*] :from [:region :r]
+                               :join [[:geo-index :g] [:= :g.id :r.id]]
+                               :where [:= [:length :materialized-path] layer-number]})
+                 {:builder-fn rs/as-unqualified-kebab-maps}))
+(defn get-layer [layer-number]
   (jdbc/execute! ds (s/format {:select [:*] :from [:region]
                                :where [:= [:length :materialized-path] layer-number]})
                  {:builder-fn rs/as-unqualified-kebab-maps}))
-
-
 (comment
-  (create-region-table)
+  (create-tables)
 
   ;; Encode splits as nsew - north, south, east or west. Each represents a split
   ;; in the region either horizontally or vertically in half, then choosing one
