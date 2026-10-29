@@ -147,7 +147,7 @@
              (concat but-last (split-region coverage (last sorted) cut-axis))))))
 
 (defn write-layer! [layer-number]
-  (let [file-name "global_pop_2026_CN_1km_R2025A_UA_v1.tif"
+  (let [file-name "global_pop_2027_CN_1km_R2025A_UA_v1.tif"
         coverage (.read (GeoTiffReader. (io/resource file-name)) nil)
         start-regions (map #(dissoc % :id) (s/get-layer (dec layer-number)))]
     (cp/pdoseq 8 [region start-regions]
