@@ -252,11 +252,25 @@
       (write-layer! layer))))
 
 (comment
-  ;; layer 6 29 seconds, 195801 regions - threadpool 8
-  ;; layer 7 32 seconds, 1451627 regions - threadpool 8
-  ;; layer 8 190 seconds, 10M regions - threadpool 8
-  ;; layer 9 17 minuets, 53M regions
-  (time (-main 10))
+  ;; layer 1 27 seconds, 8 regions - threadpool 8
+  ;; layer 2 45 seconds, 64 regions - threadpool 8
+  ;; layer 3 33 seconds, 480 regions - threadpool 8
+  ;; layer 4 22 seconds, 3616 regions - threadpool 8
+  ;; layer 5 16 seconds, 26567 regions - threadpool 8
+  ;; layer 6 15 seconds, 191925 regions - threadpool 8
+  ;; layer 7 33 seconds, 1.26M regions - threadpool 8
+  ;; layer 8 124 seconds, 5.98M regions - threadpool 8
+  ;; layer 9 335 seconds, 16.2M regions
+  ;; layer 10 554 seconds, 22.6M regions
+  ;; layer 11 528 seconds, 17.5M regions
+  ;; layer 12 308 seconds, 8M regions
+  ;; layer 13 116 seconds, 2.04M regions
+  ;; layer 14 31 seconds, 248687 regions
+  ;; layer 15 9 seconds, 13578 regions
+  ;; layer 16 6 seconds, 372 regions
+  ;; layer 17 5 seconds, 2 regions
+  ;; layer 18 5 seconds, 0 regions
+  (time (-main 18))
 
 ;; Data source​ worldpop.org.
 ;; old file​ ppp_2020_1km_Aggregated.tif
